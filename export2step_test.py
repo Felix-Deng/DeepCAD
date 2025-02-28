@@ -12,11 +12,11 @@ from cadlib.visualize import vec2CADsolid, create_CAD
 from utils.file_utils import ensure_dir
 
 
-src_dir = "cad_json_test/0000"
+src_dir = "cad_json_test/0001"
 print(src_dir)
-file_format = "json" # either h5 or json 
+file_format = "h5" # either h5 or json 
 out_paths = sorted(glob.glob(os.path.join(src_dir, "*.{}".format(file_format))))
-save_dir = "cad_step_test/0000"
+save_dir = "cad_step_test/0001"
 ensure_dir(save_dir)
 
 filter_invalid = False 
@@ -26,7 +26,8 @@ for path in out_paths:
     try:
         if file_format == "h5":
             with h5py.File(path, 'r') as fp:
-                out_vec = fp["out_vec"][:].astype(np.float)
+                out_vec = fp["vec"][:].astype(float)
+                print("pass")
                 out_shape = vec2CADsolid(out_vec)
         else: # json 
             with open(path, 'r') as fp:
