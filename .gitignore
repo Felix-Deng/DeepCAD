@@ -5,3 +5,4 @@ cad_vec_test/
 train_step/ 
 train_vec/ 
 .DS_Store
+data/

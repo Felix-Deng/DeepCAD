@@ -13,8 +13,8 @@ from cadlib.macro import *
 from utils.file_utils import ensure_dir
 
 
-DATA_ROOT = ""
-RAW_DATA = os.path.join(DATA_ROOT, "cad_json_test")
+DATA_ROOT = "data"
+RAW_DATA = os.path.join(DATA_ROOT, "cad_json")
 BREP_DIR = os.path.join(DATA_ROOT, "train_step") # input: current BRep model in STEP
 VEC_DIR = os.path.join(DATA_ROOT, "train_vec") # output: ground-truth vector for next feature 
 
@@ -31,6 +31,8 @@ for sub_dir in os.listdir(RAW_DATA): # iterate through sub-folders
     for file_name in os.listdir(path): # iterate through JSON files in sub-folder 
         name = file_name.split(".")[0]
         file_path = os.path.join(path, file_name)
+        if file_path == "data\\cad_json\\0000\\00000007.json" or file_path == 'data\\cad_json\\0000\\00000061.json': 
+            continue 
         print(file_path)
         with open(file_path, 'r') as fp: 
             data = json.load(fp)
@@ -58,15 +60,18 @@ for sub_dir in os.listdir(RAW_DATA): # iterate through sub-folders
         for vec in cad_vec: 
             current_step.append(vec)
             if vec[0] == 5: 
-                current_step = np.concatenate([current_step, EOS_VEC[np.newaxis]], axis=0) # pad EOS token 
                 modelling_steps.append(current_step)
                 current_step = []
+        
+        # current_step = np.concatenate([current_step, EOS_VEC[np.newaxis]], axis=0) # pad EOS token 
         
         # Generate training samples 
         for i in range(len(modelling_steps) - 1): 
             try: 
                 # Training input BRep (.step)
-                brep_input = vec2CADsolid(modelling_steps[i])
+                brep_input = vec2CADsolid(np.concatenate(
+                    [np.concatenate(modelling_steps[:i + 1], axis=0), EOS_VEC[np.newaxis]], axis=0
+                ))
                 write_step_file(brep_input, os.path.join(brep_save_path, name + "_{}.step".format(i)))
                 # Training output vector (.h5)
                 vec_output = modelling_steps[i + 1]
