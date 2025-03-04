@@ -49,7 +49,6 @@ for sub_dir in os.listdir(RAW_DATA):
         print(save_data_path)
         with h5py.File(save_data_path, 'w') as fp:
             fp.create_dataset("vec", data=cad_vec, dtype=int)
-        break 
         
 
 """
